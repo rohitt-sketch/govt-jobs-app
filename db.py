@@ -1,6 +1,10 @@
 # db.py
+import streamlit as st
 from supabase import create_client
-from config import SUPABASE_URL, SUPABASE_KEY
+
+# Streamlit ki secrets se keys uthao
+SUPABASE_URL = st.secrets["SUPABASE_URL"]
+SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -8,10 +12,5 @@ def test_connection():
     try:
         result = supabase.table("jobs").select("*").execute()
         print("✅ Database se connection ban gaya!")
-        print(f"Abhi {len(result.data)} jobs hain.")
     except Exception as e:
         print(f"❌ Error: {e}")
-
-if __name__ == "__main__":
-    test_connection()
-    
