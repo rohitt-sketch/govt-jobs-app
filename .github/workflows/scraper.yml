@@ -1,9 +1,11 @@
-name: Auto Scraper
+ name: Auto Scraper
 
 on:
+  push:
+    branches: [ "main" ]
   schedule:
-    - cron: '0 */2 * * *'  # Har 2 ghante mein apne aap chalega
-  workflow_dispatch:      # Aap manually bhi chala sakte ho
+    - cron: '0 */2 * * *'
+  workflow_dispatch:
 
 jobs:
   scrape:
