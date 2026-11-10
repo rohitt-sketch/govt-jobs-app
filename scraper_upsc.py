@@ -1,9 +1,12 @@
 # scraper_upsc.py
+import os
 import requests
 from bs4 import BeautifulSoup
-from config import USER_AGENT
 from db import supabase
 from notifier import send_telegram
+
+# GitHub Secrets se USER_AGENT uthao, agar na mile to default use karo
+USER_AGENT = os.getenv("USER_AGENT", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36")
 
 def scrape_upsc():
     # UPSC ki latest updates wali website
