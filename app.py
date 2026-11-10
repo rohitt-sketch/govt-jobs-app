@@ -2,102 +2,134 @@
 import streamlit as st
 from db import supabase
 
-# Page ki setting (Title aur icon)
+# Page Configuration
 st.set_page_config(page_title="Sarkari Naukri Alert", page_icon="🇮🇳", layout="wide")
 
-# Custom CSS se website ko sundar banate hain
+# Custom CSS (Website ko sundar banane ke liye)
 st.markdown("""
     <style>
-    /* Main background color */
+    /* Main Background */
     .stApp {
-        background-color: #f8f9fa;
+        background-color: #f0f2f6;
     }
-    /* Title styling */
-    h1 {
-        color: #1f4e78;
-        text-align: center;
-        font-family: 'Arial', sans-serif;
-        padding-bottom: 20px;
-    }
-    /* Subheader styling */
-    h2 {
-        color: #2c3e50;
-        font-size: 1.5rem !important;
-    }
-    /* Button styling */
-    .stButton>button {
-        background-color: #007bff;
+    /* Top Banner */
+    .header-banner {
+        background: linear-gradient(135deg, #1f4e78, #3498db);
+        padding: 30px;
+        border-radius: 15px;
         color: white;
-        border-radius: 8px;
+        text-align: center;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .header-banner h1 {
+        color: white;
+        margin: 0;
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+    .header-banner p {
+        font-size: 1.1rem;
+        margin-top: 10px;
+        opacity: 0.9;
+    }
+    /* Job Card Design */
+    .job-card {
+        background-color: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+        border-left: 5px solid #3498db;
+        transition: transform 0.2s;
+    }
+    .job-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+    .job-title {
+        color: #2c3e50;
+        font-size: 1.3rem;
         font-weight: bold;
-        border: none;
+        margin-bottom: 10px;
     }
-    .stButton>button:hover {
-        background-color: #0056b3;
+    .job-org {
+        display: inline-block;
+        background-color: #e1f5fe;
+        color: #0277bd;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 15px;
     }
-    /* Link Button styling */
-    .stLinkButton>a {
-        background-color: #28a745 !important;
+    /* Button Design */
+    .stLinkButton > a {
+        background-color: #27ae60 !important;
         color: white !important;
         border-radius: 8px !important;
         padding: 10px 20px !important;
         text-decoration: none !important;
         font-weight: bold !important;
+        display: inline-block;
+        transition: background-color 0.3s;
     }
-    .stLinkButton>a:hover {
-        background-color: #218838 !important;
+    .stLinkButton > a:hover {
+        background-color: #219653 !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
-st.title("🇮🇳 Sarkari Naukri — Latest Updates")
-st.write("Yahan aapko sabhi latest sarkari naukriyan ek jagah milengi.")
+# Header Banner
+st.markdown("""
+    <div class="header-banner">
+        <h1>🇮🇳 Sarkari Naukri Alert</h1>
+        <p>Aapki sabhi latest government jobs ek hi jagah</p>
+    </div>
+""", unsafe_allow_html=True)
 
-# Sidebar mein Search Bar
+# Search Bar (Sidebar mein)
 with st.sidebar:
-    st.header("🔍 Search Naukri")
-    search_query = st.text_input("Naukri ka naam ya department likhein:")
+    st.markdown("### 🔍 Search Naukri")
+    search_query = st.text_input("", placeholder="Naukri ka naam likhein...")
     st.markdown("---")
-    st.info("Nayi naukri aane par aapko Telegram par alert milega.")
+    st.success("🔔 Nayi naukri aane par Telegram par alert milega!")
 
-# Database se saari jobs mangwao
+# Data Fetch
 try:
     response = supabase.table("jobs").select("*").order("created_at", desc=True).execute()
     jobs = response.data
 except Exception as e:
-    st.error(f"Database se data nahi aa raha: {e}")
+    st.error(f"Database Error: {e}")
     jobs = []
 
-st.divider()
-
-if not jobs:
-    st.warning("Abhi koi naukri nahi hai. Pehle scraper chalao.")
+# Filter Logic
+if search_query:
+    filtered_jobs = [
+        job for job in jobs 
+        if search_query.lower() in job.get("title", "").lower() or 
+           search_query.lower() in job.get("organization", "").lower()
+    ]
 else:
-    # Filter logic (Search)
-    if search_query:
-        filtered_jobs = [
-            job for job in jobs 
-            if search_query.lower() in job.get("title", "").lower() or 
-               search_query.lower() in job.get("organization", "").lower()
-        ]
-    else:
-        filtered_jobs = jobs
+    filtered_jobs = jobs
 
-    st.write(f"**Total {len(filtered_jobs)} naukriyan mili hain:**")
-    
-    # Ek-ek karke saari jobs dikhao
+# Display Count
+if not filtered_jobs:
+    st.info("Abhi koi naukri nahi mili. Kripya scraper chalao.")
+else:
+    st.markdown(f"### Aapke liye **{len(filtered_jobs)}** naukriyan mili hain:")
+    st.write("---")
+
+    # Display Cards
     for job in filtered_jobs:
-        with st.container():
-            # Ek card jaisa design
-            st.markdown(f"""
-                <div style="background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 20px;">
-                    <h2 style="margin-top: 0; color: #1f4e78;">{job.get('title', 'No Title')}</h2>
-                    <p style="font-size: 1.1rem; color: #555;"><b>Organization:</b> {job.get('organization', 'N/A')}</p>
-                </div>
-            """, unsafe_allow_html=True)
-            
-            # Button
-            if job.get("notification_url"):
-                st.link_button("📄 Notification dekho", job["notification_url"])
-            
-            st.write("") # Thoda space
+        st.markdown(f"""
+            <div class="job-card">
+                <div class="job-org">{job.get('organization', 'Govt')}</div>
+                <div class="job-title">{job.get('title', 'No Title')}</div>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        if job.get("notification_url"):
+            # Link button ke liye thoda spacing
+            st.link_button("📄 Notification Dekhein", job["notification_url"])
+            st.write("") # Space
