@@ -66,6 +66,6 @@ def scrape_site(url, org_name):
     print(f"🎉 {org_name}: {new_count} nayi jobs mili!")
 
 if __name__ == "__main__":
-    # Yahan hum alag-alag websites ke link daal rahe hain
+    # Yahan humne CSTT wala link hata kar UPSC aur CSIR add kiya hai
+    scrape_site("https://upsc.gov.in/whats-new", "UPSC")
     scrape_site("https://www.csir.res.in/careers", "CSIR")
-    scrape_site("https://indianrailways.gov.in/railwayboard/view_section.jsp?lang=0&id=0,4,248", "Railway")
